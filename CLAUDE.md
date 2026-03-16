@@ -199,6 +199,7 @@ A phase is considered complete only when its required outputs are produced AND t
 - `@docs/requirements.md` is complete, consistent, and user-approved.
 - No unclear or missing requirements remain.
 - Legal document policy is explicitly defined (consent screen, Privacy Policy, Terms of Service, OSS license screen).
+- Monetization model is explicitly defined (Free / Ads / Subscription / One-time purchase).
 
 ---
 

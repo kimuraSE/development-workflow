@@ -32,7 +32,7 @@ Confirm all of the following before starting. If anything is incomplete: STOP �
 Do not declare submission complete without explicit user confirmation.
 For items that only the user can perform, provide clear instructions.
 
-## Audit Scope (6 categories — both iOS and Android platforms)
+## Audit Scope (7 categories — both iOS and Android platforms)
 
 ### Category 1: Build and Release Configuration
 - [ ] Release build configuration is correctly set up (debug → release)
@@ -112,6 +112,26 @@ For items that only the user can perform, provide clear instructions.
 - [ ] Reachable within 2 taps from the main screen
 - [ ] License display content matches the actual versions and libraries in use
 
+**4.5 Monetization Compliance (skip entirely if monetization model is Free)**
+
+*(Subscription)*
+- [ ] StoreKit (iOS) / BillingClient (Android) implementation complies with store guidelines
+- [ ] Subscription terms (price, duration, auto-renewal) are clearly disclosed before purchase
+- [ ] Free trial terms are clearly disclosed (if applicable)
+- [ ] Cancellation policy is accessible within the app
+- [ ] iOS: Subscription management link (App Store manage subscriptions) is present
+
+*(Ads)*
+- [ ] Ad placements comply with store guidelines (no full-screen ads on app launch, no ads that mimic system UI, etc.)
+- [ ] ATT (App Tracking Transparency) consent prompt is implemented for iOS 14.5+ (if using personalized ads)
+- [ ] GDPR / CCPA consent is implemented if required by target markets
+- [ ] Ad SDK (e.g. AdMob) is correctly initialized and complies with the privacy policy
+
+*(One-time Purchase)*
+- [ ] In-app purchase implementation complies with store guidelines
+- [ ] Purchase terms are clearly disclosed before completing the transaction
+- [ ] Restore purchases functionality is implemented (iOS requirement)
+
 ### Category 5: Functionality and Stability
 - [ ] No crashes or freezes (verified in debug build)
 - [ ] All screens function correctly
@@ -136,9 +156,10 @@ For items that only the user can perform, provide clear instructions.
 ## Execution Order (mandatory — no skipping)
 
 1. Confirm preconditions (Phase 10 complete + debug build success + all tests pass)
-2. Create the initial structure of `@docs/store-submission.md`
-3. Audit Category 1 (Build and Release Configuration)
-4. Audit Category 2 (App Metadata)
+2. Read `@docs/requirements.md` Section 3.5 to confirm the monetization model
+3. Create the initial structure of `@docs/store-submission.md`
+4. Audit Category 1 (Build and Release Configuration)
+5. Audit Category 2 (App Metadata)
 
 ### SubAgent Usage ①: After Category 2 is complete
 → Launch `app-store-optimizer` to evaluate:
@@ -147,30 +168,31 @@ For items that only the user can perform, provide clear instructions.
   - Whether there are consistency issues between the app description and actual functionality
 → Present the evaluation results to the user and resolve any issues before moving to Category 3.
 
-5. Audit Category 3 (Permissions, Privacy, and Legal)
+6. Audit Category 3 (Permissions, Privacy, and Legal)
 
 ### SubAgent Usage ②: After Category 3 is complete
 → Launch `legal-compliance-checker` to verify:
   - Whether the Privacy Policy and Terms of Service meet App Store and Google Play requirements
   - Whether there are any easily overlooked legal risks in Category 4 (copyright, trademarks, OSS licenses)
+  - Whether monetization-specific legal requirements are met (subscription disclosure, ATT consent for ads, etc.)
   - Whether the access path to each legal document meets the requirement (within 2 taps)
 → Present the verification results to the user and resolve any issues before moving to Category 4.
 
-6. Audit Category 4 (Store Policy, Copyright, Trademarks, OSS)
-7. Audit Category 5 (Functionality and Stability)
-8. Audit Category 6 (Platform-Specific Requirements)
-9. Implement fixes for all identified issues
+7. Audit Category 4 (Store Policy, Copyright, Trademarks, OSS, Monetization)
+8. Audit Category 5 (Functionality and Stability)
+9. Audit Category 6 (Platform-Specific Requirements)
+10. Implement fixes for all identified issues
 
-### SubAgent Usage ③: After fix implementation is complete (after step 9)
+### SubAgent Usage ③: After fix implementation is complete (after step 10)
 → Launch `test-results-analyzer` to analyze:
   - Whether there are any regressions across all Phase 3, 4, 5, and 8 test results
   - Whether any tests were affected by the Phase 11 fixes
 → Present the analysis results to the user before proceeding to Completion Criteria verification.
 
-10. Document user-action items in `@docs/store-submission.md` Section 4
-11. Present the Completion Criteria checklist to the user
-12. **Instruct the user to create the release build** (see Release Build Instruction Rules below)
-13. After user confirms release build success → complete `@docs/store-submission.md` and request final approval
+11. Document user-action items in `@docs/store-submission.md` Section 4
+12. Present the Completion Criteria checklist to the user
+13. **Instruct the user to create the release build** (see Release Build Instruction Rules below)
+14. After user confirms release build success → complete `@docs/store-submission.md` and request final approval
 
 After each category audit:
 - Report issues using the Issue Report Format
@@ -196,7 +218,7 @@ After all Category 1–6 audits and fixes are complete, ClaudeCode must:
 If an issue is found: STOP immediately and report in the following format:
 
 ```
-- **Category**: Build / Metadata / Privacy / Terms / Legal / Policy / Copyright / Trademark / OSS / Stability / Platform
+- **Category**: Build / Metadata / Privacy / Terms / Legal / Policy / Copyright / Trademark / OSS / Monetization / Stability / Platform
 - **Platform**: iOS / Android / Both
 - **Issue**:
 - **Action**: Fix by ClaudeCode / Manual action required by user
@@ -214,6 +236,7 @@ When implementing fixes:
 - Present fix evidence (build success, test results, or observed behavior)
 
 ## Document Template (structure must not be changed)
+
 ```
 # Store Submission Readiness Document
 
@@ -221,6 +244,7 @@ When implementing fixes:
 ### 1.1 App Name
 ### 1.2 Version / Build Number
 ### 1.3 Target Platforms
+### 1.4 Monetization Model
 
 ## 2. Review Checklist
 ### 2.1 Build and Release Configuration
@@ -235,6 +259,7 @@ When implementing fixes:
 #### 2.4.2 Copyright and Asset Licenses
 #### 2.4.3 Trademarks
 #### 2.4.4 OSS License Compliance
+#### 2.4.5 Monetization Compliance
 ### 2.5 Functionality and Stability
 ### 2.6 Platform-Specific Requirements (iOS)
 ### 2.7 Platform-Specific Requirements (Android)
@@ -267,6 +292,7 @@ When implementing fixes:
 - [ ] Category 4.2 (Copyright and Asset Licenses): All items resolved, cross-checked with `@docs/images-design.md`
 - [ ] Category 4.3 (Trademarks): All items resolved
 - [ ] Category 4.4 (OSS License Compliance): All items resolved, reachable within 2 taps from main screen
+- [ ] Category 4.5 (Monetization Compliance): All items resolved (or skipped if model is Free)
 - [ ] Category 5 (Functionality and Stability): All items resolved
 - [ ] Category 6 (Platform-Specific): All items resolved
 - [ ] OSS license list documented in `@docs/store-submission.md` Section 5
@@ -274,7 +300,7 @@ When implementing fixes:
 - [ ] User-action items clearly documented in `@docs/store-submission.md` Section 4
 - [ ] `@docs/store-submission.md` is complete (Section 6 to be filled after release build)
 - [ ] `app-store-optimizer` review risk evaluation completed
-- [ ] `legal-compliance-checker` legal compliance verification completed
+- [ ] `legal-compliance-checker` legal and monetization compliance verification completed
 - [ ] `test-results-analyzer` Final Regression analysis completed
 - [ ] User has confirmed successful release build on both iOS and Android platforms
 
@@ -284,6 +310,7 @@ Mark Phase 11 as complete only when ALL of the following are satisfied:
 
 - [ ] All audit checklist items are resolved or documented as user-action items
 - [ ] Privacy Policy, Terms of Service, and OSS license screen are all accessible within the app
+- [ ] Monetization implementation complies with store guidelines (or skipped if model is Free)
 - [ ] No known policy violations remain
 - [ ] Phase 3, 4, 5, and 8 tests all pass (no regression)
 - [ ] User has confirmed successful release build on both iOS and Android platforms
@@ -293,6 +320,7 @@ Mark Phase 11 as complete only when ALL of the following are satisfied:
 
 ## Start
 First confirm that Phase 10 is complete and all tests pass,
-then create the initial structure of `@docs/store-submission.md`,
+then read `@docs/requirements.md` Section 3.5 to confirm the monetization model,
+create the initial structure of `@docs/store-submission.md`,
 plan the Category 1 (Build and Release Configuration) audit in plan mode, and propose it to the user.
 Obtain user approval before starting the audit.
