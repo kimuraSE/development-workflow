@@ -49,6 +49,24 @@ Priority:
 3. For UseCases that require Repository interfaces, define the interfaces first
 4. Include Legal UseCases in the plan at the same level as regular UseCases
 
+The approved order defines the queue for the Per-Function Cycle below. One function at a time, no batching.
+
+## Per-Function Cycle (Strict)
+
+This phase MUST follow the Per-Function Implementation Cadence in @CLAUDE.md Section 4-bis.
+
+For each function (public UseCase method) in the approved order, complete ALL 5 steps before starting the next function:
+
+1. Implement ONE function only.
+2. STOP → present implementation (file, code, intent, expected behavior, mock dependencies if any) → wait for explicit user approval.
+3. Present a Test Plan scoped to THIS function only (see Test Plan Rules) → wait for explicit user approval.
+4. Implement & run the test → present results/logs → wait for explicit user approval.
+5. Move to the next function.
+
+Repository interface definitions are treated as a separate cycle item (interface → approve → next). They have no test step but still require explicit approval before any UseCase that uses them is implemented.
+
+Implementing 2+ functions before stopping, or batching test plans across functions, is a Failure (Section 7).
+
 ## Repository Interface Rules
 - Define Repository interfaces before implementing the UseCases that require them
 - After definition, verify consistency with `@docs/domain-design.md`
@@ -64,35 +82,32 @@ Priority:
 6. Re-run all Phase 3 tests to confirm no regression
 7. Resume UseCase implementation
 
-## Test Plan Rules (MANDATORY)
+## Test Plan Rules (per function)
 
-Before writing any test code, always do the following:
+Each test plan in step 3 of the cycle must include:
+- Target UseCase method and its expected behaviors
+- Test cases and expected results
+- Edge cases and invariant verification
+- Mock strategy for dependent Domain/Repository objects
 
-1. Enter plan mode
-2. Define a test plan including:
-   - Target UseCase methods and behaviors
-   - Test cases and expected results
-   - Edge cases and invariant verification
-   - Mock strategy for dependent Domain/Repository objects
-
-### SubAgent Usage ①: During test plan review
+### SubAgent Usage ①: During each per-function test plan review
 → Launch `test-writer-fixer` to verify:
-  - Validity of the mock strategy (whether Domain layer dependencies are correctly isolated)
-  - Test case coverage (missing boundary values, edge cases, invariant checks)
-  - Whether mandatory Legal UseCase test cases are included:
+  - Validity of the mock strategy for THIS function (whether Domain layer dependencies are correctly isolated)
+  - Test case coverage for THIS function (missing boundary values, edge cases, invariant checks)
+  - For Legal UseCase functions, whether mandatory cases are included:
     - `HasAgreedToTermsUseCase`: returns false when no agreement is saved / returns true after saving
     - `SaveAgreementUseCase`: agreement state is correctly persisted / calling again does not overwrite with wrong value
-→ Present the review results to the user before proceeding with implementation.
+→ Present the review results to the user before requesting test plan approval.
 
-3. Implement and execute tests only after approval
-4. Present test results and logs as verification evidence
+## Definition of Done (per function)
 
-## Definition of Done (per UseCase)
-
-Mark as "Done" only when ALL of the following are satisfied:
+Mark a function "Done" only when ALL of the following are satisfied:
 
 - [ ] Implementation matches `@docs/domain-design.md` and `@docs/requirements.md`
+- [ ] User has explicitly approved the implementation (cycle step 2)
+- [ ] User has explicitly approved the test plan (cycle step 3)
 - [ ] Unit tests are implemented and all pass
+- [ ] User has explicitly approved the test results (cycle step 4)
 - [ ] No temporary fixes, hacks, or workarounds exist
 - [ ] Architectural integrity is preserved (no dependency direction violations)
 - [ ] Repository interfaces match `@docs/domain-design.md`

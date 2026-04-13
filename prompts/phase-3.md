@@ -35,33 +35,44 @@ Priority:
 2. Follow the order: value objects → Entities → aggregates → Domain services
 3. If dependencies exist, implement dependencies first
 
-## Test Plan Rules (MANDATORY)
+The approved order defines the queue for the Per-Function Cycle below. One function at a time, no batching.
 
-Before writing any test code, always do the following:
+## Per-Function Cycle (Strict)
 
-1. Enter plan mode
-2. Define a test plan including:
-   - Target methods and behaviors
-   - Test cases and expected results
-   - Edge cases and invariant verification
-3. Present the test plan to the user
-4. Wait for explicit approval
+This phase MUST follow the Per-Function Implementation Cadence in @CLAUDE.md Section 4-bis.
 
-### SubAgent Usage ①: During test plan review
+For each function (public method) in the approved order, complete ALL 5 steps before starting the next function:
+
+1. Implement ONE function only.
+2. STOP → present implementation (file, code, intent, expected behavior) → wait for explicit user approval.
+3. Present a Test Plan scoped to THIS function only (see Test Plan Rules) → wait for explicit user approval.
+4. Implement & run the test → present results/logs → wait for explicit user approval.
+5. Move to the next function.
+
+Implementing 2+ functions before stopping, or batching test plans across functions, is a Failure (Section 7).
+
+## Test Plan Rules (per function)
+
+Each test plan in step 3 of the cycle must include:
+- Target method and its expected behaviors
+- Test cases and expected results
+- Edge cases and invariant verification
+
+### SubAgent Usage ①: During each per-function test plan review
 → Launch `test-writer-fixer` to verify:
-  - Test case coverage (missing boundary values, edge cases, invariant checks)
-  - Whether all domain rules in `@docs/domain-design.md` are covered by tests
-→ Present the review results to the user before proceeding with implementation.
+  - Test case coverage for THIS function (missing boundary values, edge cases, invariant checks)
+  - Whether the domain rules in `@docs/domain-design.md` that apply to THIS function are covered
+→ Present the review results to the user before requesting test plan approval.
 
-5. Implement and execute tests only after approval
-6. Present test results and logs as verification evidence
+## Definition of Done (per function)
 
-## Definition of Done (per method)
-
-Mark as "Done" only when ALL of the following are satisfied:
+Mark a function "Done" only when ALL of the following are satisfied:
 
 - [ ] Implementation matches `@docs/domain-design.md`
+- [ ] User has explicitly approved the implementation (cycle step 2)
+- [ ] User has explicitly approved the test plan (cycle step 3)
 - [ ] Unit tests are implemented and all pass
+- [ ] User has explicitly approved the test results (cycle step 4)
 - [ ] No temporary fixes, hacks, or workarounds exist
 - [ ] Architectural integrity is preserved (no dependency direction violations)
 - [ ] Test results and logs are presented as evidence

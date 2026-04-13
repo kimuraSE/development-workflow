@@ -49,26 +49,42 @@ Before starting, list all ViewModels based on `@docs/screen.md`,
 plan the implementation order in plan mode, and present it to the user for approval.
 Do not begin implementation before approval.
 
-### Per-ViewModel Implementation Steps (mandatory — no skipping)
+For each ViewModel in the approved order, extract from `@docs/screen.md`:
+- The state representation (treated as one cycle item — review-only, no test)
+- The list of public functions: each event handler, each transition method, each UseCase-connecting call
 
-1. Extract screen states from `@docs/screen.md`
-2. Define the ViewModel state representation
-3. Extract events from `@docs/screen.md`
-4. Implement event handlers
-5. Implement state transitions
-6. Connect UseCase calls
-7. Enter plan mode and define a test plan for state transitions
-8. Present the test plan to the user and wait for approval
+Present this per-ViewModel function list to the user and obtain approval before entering the Per-Function Cycle. The approved list defines the queue.
 
-### SubAgent Usage ①: During test plan review (before step 8)
+## Per-Function Cycle (Strict)
+
+This phase MUST follow the Per-Function Implementation Cadence in @CLAUDE.md Section 4-bis.
+
+For each function (public ViewModel method / event handler) in the approved per-ViewModel list, complete ALL 5 steps before starting the next function:
+
+1. Implement ONE function only (one event handler, or one transition method, or one UseCase-connecting call).
+2. STOP → present implementation (file, code, the screen.md state/event it derives from, expected transition) → wait for explicit user approval.
+3. Present a Test Plan scoped to THIS function only (see Test Plan Rules) → wait for explicit user approval.
+4. Implement & run the test → present results/logs → wait for explicit user approval.
+5. Move to the next function.
+
+The state representation (data class / sealed class / equivalent) MAY be a single review-only cycle item per ViewModel (no test step required) when it contains only declarations, but transitions on those states are individual functions and DO require the full cycle.
+
+Implementing 2+ functions before stopping, or batching test plans across functions, is a Failure (Section 7).
+
+## Test Plan Rules (per function)
+
+Each test plan in step 3 of the cycle must include:
+- Target ViewModel method and its expected state transition(s)
+- Test cases mapped 1:1 to the events/transitions in `@docs/screen.md` for THIS function
+- Mock strategy for UseCase dependencies
+- Loading and error state coverage when applicable
+
+### SubAgent Usage ①: During each per-function test plan review
 → Launch `test-writer-fixer` to verify:
-  - Whether all states and transitions in `@docs/screen.md` are covered by test cases
-  - Whether the mock strategy for UseCase connections is appropriate (ViewModels not depending on UseCase implementations)
-  - Whether test cases exist for error states and loading states
-→ Present the review results to the user before proceeding with implementation.
-
-9. Implement and execute tests only after approval
-10. Present test results and logs as verification evidence
+  - Whether the states and transitions in `@docs/screen.md` that THIS function is responsible for are fully covered
+  - Whether the mock strategy for UseCase connections is appropriate (ViewModel not depending on UseCase implementations)
+  - Whether error and loading state cases are included when applicable
+→ Present the review results to the user before requesting test plan approval.
 
 ## If screen.md Changes Are Required
 1. Immediately STOP ViewModel implementation
@@ -83,17 +99,27 @@ After each ViewModel implementation is complete:
 - Confirm no regression has occurred
 - Present test results as evidence before marking as "Done"
 
+## Definition of Done (per function)
+
+Mark a function "Done" only when ALL of the following are satisfied:
+
+- [ ] Implementation strictly matches the state/event/transition in `@docs/screen.md`
+- [ ] User has explicitly approved the implementation (cycle step 2)
+- [ ] User has explicitly approved the test plan (cycle step 3)
+- [ ] Tests for THIS function are implemented and pass
+- [ ] User has explicitly approved the test results (cycle step 4)
+- [ ] No undefined states or transitions are introduced
+- [ ] No temporary fixes, hacks, or workarounds exist
+- [ ] Architectural integrity is preserved (no dependency direction violations)
+
 ## Definition of Done (per ViewModel)
 
-Mark as "Done" only when ALL of the following are satisfied:
+Mark a ViewModel "Done" only when ALL of the following are satisfied:
 
+- [ ] Every function in the approved per-ViewModel list has met the per-function Definition of Done
 - [ ] All states strictly match `@docs/screen.md`
 - [ ] All events and transitions are implemented and tested
 - [ ] All UseCase connections are verified
-- [ ] No undefined states or transitions exist
-- [ ] No temporary fixes, hacks, or workarounds exist
-- [ ] Architectural integrity is preserved (no dependency direction violations)
-- [ ] All tests pass and results are presented as evidence
 - [ ] Phase 3, 4, and 5 tests have no regressions
 
 ## Exit Criteria (Phase 8)

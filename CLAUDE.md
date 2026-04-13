@@ -29,6 +29,56 @@
 - After approval, implement and execute the test, and demonstrate correctness through results and logs.
 - View-layer components are exempt from mandatory unit testing.
 - View verification must be performed by running the application on both iOS and Android platforms and confirming correct rendering and behavior.
+- For implementation phases (Phase 3, 4, 5, 8), unit testing MUST follow the Per-Function Implementation Cadence defined in Section 4-bis. Layer-wide batch implementation followed by batch testing is prohibited.
+
+### 4-bis. Per-Function Implementation Cadence (Strict)
+
+This rule overrides any conflicting cadence in phase prompts. It applies to ALL implementation phases that produce unit-tested code (Phase 3, 4, 5, 8). View layer (Phase 9) is out of scope.
+
+**Purpose**: Keep the user in the loop at all times. The user must never be left behind by long autonomous implementation runs.
+
+**Unit of work**
+- One "function" = one public method / function / top-level procedure as defined by the language.
+- Private helpers introduced solely to support a public method are bundled into that public method's cycle (do not create separate cycles for them).
+- Constructors, factory methods, and computed properties with non-trivial logic are treated as functions.
+
+**Mandatory cycle (per function — no skipping, no batching)**
+
+For every single function, execute the following 5 steps in order. Do NOT start the next function until the current cycle is fully approved.
+
+1. **Implement ONE function only**
+   - Stay strictly within the approved implementation order.
+   - Do not implement adjacent functions "while you're there".
+
+2. **STOP and present the implementation for review**
+   - Show: file path, the new/changed code, the function's intent, expected behavior, and any assumptions made.
+   - Wait for **explicit user approval** (e.g., "OK", "approve", "承認", "進めて"). Silence is NOT approval. Ambiguous responses require a clarifying question.
+
+3. **Present a Test Plan for THIS function only**
+   - Enter plan mode.
+   - Define: target behaviors, test cases, edge cases, invariants, mock strategy (if any).
+   - Scope the plan to the just-approved function. Do not bundle multiple functions into one test plan.
+   - Wait for explicit user approval of the test plan.
+
+4. **Implement and execute the test**
+   - Implement only the tests covered by the approved test plan.
+   - Run the tests and capture results/logs.
+   - Present results as evidence and wait for explicit user approval.
+
+5. **Move to the next function**
+   - Only after step 4 is approved, begin step 1 for the next function in the approved order.
+   - If the order needs to change mid-stream: STOP → explain → re-approve the order.
+
+**Violations are Failures (Section 7)**
+- Implementing 2+ functions before stopping.
+- Writing tests for a function that has not been implementation-approved.
+- Skipping the test cycle for a function that requires testing.
+- Proceeding without explicit approval (assuming silence as consent).
+- Bundling multiple functions into a single review/test cycle.
+
+**Exceptions**
+- Pure data-only declarations with no logic (e.g., enum cases, plain DTO field lists) MAY be grouped into a single review cycle when explicitly proposed and approved as a group.
+- Auto-generated code (codegen output) is exempt; only the generator configuration goes through the cycle.
 
 ### 5. Demand Elegance (Balanced)
 - For non-trivial changes: pause and ask "is there a more elegant way?"

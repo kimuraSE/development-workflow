@@ -86,39 +86,54 @@ Priority:
 3. Before implementing each Repository, review the corresponding interface, DTO mapping, and table definitions in `@docs/db-schema.md`
 4. Include `AgreementRepository` in the plan at the same level as regular Repositories
 
-## Test Plan Rules (MANDATORY)
+The approved order defines the queue for the Per-Function Cycle below. One function at a time, no batching.
 
-Before writing any test code, always do the following:
+## Per-Function Cycle (Strict)
 
-1. Enter plan mode
-2. Define a test plan including:
-   - Target Repository methods and behaviors
-   - Test cases and expected results using in-memory storage
-   - Edge cases and domain constraint verification
-   - DTO mapping accuracy verification
-   - Verification that field constraints in `@docs/db-schema.md` (NOT NULL, UNIQUE, etc.) are correctly reflected
+This phase MUST follow the Per-Function Implementation Cadence in @CLAUDE.md Section 4-bis.
 
-### SubAgent Usage ①: During test plan review
+For each function (public Repository method) in the approved order, complete ALL 5 steps before starting the next function:
+
+1. Implement ONE function only.
+2. STOP → present implementation (file, code, intent, expected behavior, DTO mapping notes) → wait for explicit user approval.
+3. Present a Test Plan scoped to THIS function only (see Test Plan Rules) → wait for explicit user approval.
+4. Implement & run the test (in-memory) → present results/logs → wait for explicit user approval.
+5. Move to the next function.
+
+DTOs and Mappers introduced solely to support a Repository method are bundled into that method's cycle. Standalone DTOs/Mappers shared across multiple Repositories may be proposed as a single review-only item (no test) and require explicit approval.
+
+Implementing 2+ functions before stopping, or batching test plans across functions, is a Failure (Section 7).
+
+## Test Plan Rules (per function)
+
+Each test plan in step 3 of the cycle must include:
+- Target Repository method and its expected behaviors
+- Test cases and expected results using in-memory storage
+- Edge cases and domain constraint verification
+- DTO mapping accuracy verification (when this method touches mapping)
+- Verification that field constraints in `@docs/db-schema.md` (NOT NULL, UNIQUE, etc.) relevant to this method are correctly reflected
+
+### SubAgent Usage ①: During each per-function test plan review
 → Launch `test-writer-fixer` to verify:
-  - Whether DTO mapping tests cover both directions (Domain→DTO and DTO→Domain)
-  - Whether test cases exist for all constraints in db-schema.md (NOT NULL, UNIQUE, DEFAULT, etc.)
-  - Whether mandatory `AgreementRepository` test cases are included (if in scope):
+  - Whether DTO mapping tests cover both directions (Domain→DTO and DTO→Domain) for THIS function
+  - Whether test cases exist for the constraints in db-schema.md that apply to THIS function (NOT NULL, UNIQUE, DEFAULT, etc.)
+  - For `AgreementRepository` functions (if in scope), whether mandatory cases are included:
     - Agreement state can be correctly saved and retrieved
     - Returns false (or equivalent default) when no agreement has been saved
     - Saving twice does not corrupt the stored value
     - In-memory implementation satisfies the same interface as the production implementation
-→ Present the review results to the user before proceeding with implementation.
+→ Present the review results to the user before requesting test plan approval.
 
-3. Implement and execute tests only after approval
-4. Present test results and logs as verification evidence
+## Definition of Done (per function)
 
-## Definition of Done (per Repository method)
-
-Mark as "Done" only when ALL of the following are satisfied:
+Mark a function "Done" only when ALL of the following are satisfied:
 
 - [ ] Implementation conforms to the Repository interface defined in the Domain layer
 - [ ] Implementation conforms to the table definitions in `@docs/db-schema.md`
+- [ ] User has explicitly approved the implementation (cycle step 2)
+- [ ] User has explicitly approved the test plan (cycle step 3)
 - [ ] In-memory unit tests are implemented and all pass
+- [ ] User has explicitly approved the test results (cycle step 4)
 - [ ] Data mapping preserves all domain constraints
 - [ ] No temporary fixes, hacks, or workarounds exist
 - [ ] Architectural integrity is preserved (no dependency direction violations)
